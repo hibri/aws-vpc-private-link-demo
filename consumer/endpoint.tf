@@ -18,17 +18,3 @@ resource "aws_route53_record" "ptfe_service" {
   records = ["${lookup(aws_vpc_endpoint.ptfe_service.dns_entry[0], "dns_name")}"]
 }
 
-resource "aws_security_group" "ptfe_service" {
-  name        = "ptfe_service"
-  description = "ptfe_service"
-  vpc_id      = "${data.aws_vpc.main.id}"
-}
-
-resource "aws_security_group_rule" "ingress_80" {
-  security_group_id        = "${aws_security_group.ptfe_service.id}"
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = "80"
-  to_port                  = "80"
-  source_security_group_id = "${data.aws_security_group.default_security_group.id}"
-}

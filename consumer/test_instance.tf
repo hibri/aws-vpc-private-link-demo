@@ -4,7 +4,7 @@ resource "aws_instance" "web" {
   associate_public_ip_address = true
   subnet_id                   = "${aws_subnet.consumer_subnet.id}"
   key_name                    = "${aws_key_pair.ssh_access.key_name}"
-  security_groups             = ["${aws_security_group.allow_outside.id}"]
+  security_groups             = ["${aws_security_group.allow_outside.id}", "${data.aws_security_group.default_security_group.id}"]
 
   tags {
     Name = "testinstance"
@@ -22,12 +22,12 @@ resource "aws_security_group_rule" "ingress_ssh" {
   protocol          = "tcp"
   from_port         = "22"
   to_port           = "22"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["${var.allow_from_cidr}"]
 }
 
 resource "aws_security_group_rule" "egress" {
   security_group_id = "${aws_security_group.allow_outside.id}"
-  type              = "ingress"
+  type              = "egress"
   protocol          = "-1"
   from_port         = "0"
   to_port           = "0"
