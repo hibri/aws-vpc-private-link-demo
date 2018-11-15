@@ -86,8 +86,9 @@ resource "random_string" "bucket_name" {
 }
 
 resource "aws_s3_bucket" "populate_nln_tg_with_alb" {
-  bucket = "hibritest${random_string.bucket_name.result}"
-  acl    = "private"
+  bucket        = "hibritest${random_string.bucket_name.result}"
+  acl           = "private"
+  force_destroy = true
 
   tags {
     Name        = "bucket to populate nlb tg with alb "
