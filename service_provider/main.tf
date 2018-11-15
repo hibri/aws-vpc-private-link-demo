@@ -12,6 +12,8 @@ data "aws_subnet_ids" "main" {
   vpc_id = "${data.aws_vpc.main.id}"
 }
 
+
+
 resource "aws_lb_listener" "alb" {
   load_balancer_arn = "${module.fargate_alb.arn}"
   port              = "80"

@@ -30,6 +30,5 @@ resource "aws_security_group_rule" "ingress_80" {
   protocol          = "tcp"
   from_port         = "80"
   to_port           = "80"
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
+  source_security_group_id = "${data.aws_security_group.default_security_group.id}"
 }
