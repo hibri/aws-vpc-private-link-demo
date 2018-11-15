@@ -9,7 +9,7 @@ module "service_provider" {
 module "consumer" {
   source       = "./consumer"
   ptfe_service = "${module.service_provider.privatelink_service_name}"
-  vpc_id       = "${var.consumer_vpc_id}"
+  public_key   = "${var.public_key}"
 }
 
-variable "consumer_vpc_id" {}
+variable "public_key" {}

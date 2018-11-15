@@ -1,2 +1,2 @@
 variable "ptfe_service" {}
-variable "vpc_id" {}
+variable "public_key" {}

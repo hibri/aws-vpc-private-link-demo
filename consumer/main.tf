@@ -1,11 +1,13 @@
 data "aws_availability_zones" "available" {}
 
 data "aws_vpc" "main" {
-  id = "${var.vpc_id}"
+  id = "${aws_vpc.consumer.id}"
 }
 
 data "aws_subnet_ids" "main" {
   vpc_id = "${data.aws_vpc.main.id}"
+
+  depends_on = ["aws_subnet.consumer_subnet"]
 }
 
 data "aws_security_group" "default_security_group" {
@@ -17,58 +19,32 @@ data "aws_security_group" "default_security_group" {
   }
 }
 
+resource "aws_vpc" "consumer" {
+  cidr_block           = "10.0.1.0/25"
+  enable_dns_hostnames = true
+  enable_dns_hostnames = true
+
+  tags {
+    Name = "consumer_vpc"
+  }
+}
+
+resource "aws_subnet" "consumer_subnet" {
+  vpc_id                  = "${data.aws_vpc.main.id}"
+  cidr_block              = "10.0.1.0/25"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "consumer_subnet"
+  }
+}
+
 resource "aws_route53_zone" "internal" {
   name = "internal"
 
   vpc {
     vpc_id = "${data.aws_vpc.main.id}"
   }
-}
-
-module "frontend_internal_nlb" {
-  source  = "telia-oss/loadbalancer/aws"
-  version = "0.2.0"
-
-  name_prefix = "consumer-frontend"
-  type        = "network"
-  internal    = "true"
-  vpc_id      = "${data.aws_vpc.main.id}"
-  subnet_ids  = ["${data.aws_subnet_ids.main.ids}"]
-
-  tags {
-    environment = "test"
-    terraform   = "true"
-  }
-}
-
-resource "aws_lb_listener" "expose_endpoint" {
-  load_balancer_arn = "${module.frontend_internal_nlb.arn}"
-  port              = "80"
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = "${aws_lb_target_group.service_endpoint.arn}"
-  }
-}
-
-resource "aws_lb_target_group" "service_endpoint" {
-  name        = "frontend-internal-tg"
-  port        = 80
-  protocol    = "TCP"
-  vpc_id      = "${data.aws_vpc.main.id}"
-  target_type = "ip"
-
-  stickiness {
-    type    = "lb_cookie"
-    enabled = false
-  }
-}
-
-resource "aws_lb_target_group_attachment" "spoke_a_endpoint" {
-  target_group_arn = "${aws_lb_target_group.service_endpoint.arn}"
-  target_id        = "${element(data.aws_network_interface.ptfe_interfaces.*.private_ip, count.index)}"
-  port             = 80
 }
 
 data "aws_network_interface" "ptfe_interfaces" {

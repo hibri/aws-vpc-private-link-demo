@@ -4,7 +4,7 @@ resource "aws_vpc_endpoint" "ptfe_service" {
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    "${aws_security_group.ptfe_service.id}",
+    "${data.aws_security_group.default_security_group.id}",
   ]
 
   subnet_ids = ["${data.aws_subnet_ids.main.ids}"]
