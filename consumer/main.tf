@@ -10,12 +10,12 @@ data "aws_subnet_ids" "main" {
 
 data "aws_security_group" "default_security_group" {
   vpc_id = "${data.aws_vpc.main.id}"
+
   filter {
-    name = "group-name"
+    name   = "group-name"
     values = ["default"]
   }
 }
-
 
 resource "aws_route53_zone" "internal" {
   name = "internal"
