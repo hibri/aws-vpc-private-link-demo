@@ -48,7 +48,7 @@ module "service_internal_nlb" {
 
   name_prefix = "${var.service}-service"
   type        = "network"
-  internal    = "true"
+  internal    = "false"
   vpc_id      = "${data.aws_vpc.main.id}"
   subnet_ids  = ["${data.aws_subnet_ids.main.ids}"]
 
