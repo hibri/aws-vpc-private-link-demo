@@ -15,4 +15,6 @@ module "consumer" {
 
 variable "public_key" {}
 
-variable "allow_from_cidr" {}
+variable "allow_from_cidr" {
+  type = "list"
+}
