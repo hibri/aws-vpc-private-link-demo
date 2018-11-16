@@ -96,12 +96,18 @@ resource "aws_s3_bucket" "populate_nln_tg_with_alb" {
   }
 }
 
+data "archive_file" "lambda_package" {
+  type        = "zip"
+  source_dir  = "${path.module}/populate_nlb_tg_with_alb_lambda"
+  output_path = "${path.module}/files/populate_NLB_TG_with_ALB.zip"
+}
+
 resource "aws_lambda_function" "populate_NLB_TG_with_ALB" {
   filename         = "${path.module}/files/populate_NLB_TG_with_ALB.zip"
   function_name    = "populate_NLB_TG_with_ALB"
   role             = "${aws_iam_role.populate_NLB_TG_with_ALB.arn}"
   handler          = "populate_NLB_TG_with_ALB.lambda_handler"
-  source_code_hash = "${base64sha256(file("${path.module}/files/populate_NLB_TG_with_ALB.zip"))}"
+  source_code_hash = "${data.archive_file.lambda_package.output_base64sha256}"
   runtime          = "python2.7"
   timeout          = 300
 
