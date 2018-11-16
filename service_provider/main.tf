@@ -85,5 +85,5 @@ resource "aws_lb_target_group" "service_frontend" {
 resource "aws_vpc_endpoint_service" "endpoint_service" {
   acceptance_required        = false
   network_load_balancer_arns = ["${module.service_internal_nlb.arn}"]
-  depends_on = ["module.service_internal_nlb"]
+  depends_on                 = ["module.service_internal_nlb"]
 }

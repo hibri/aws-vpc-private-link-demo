@@ -17,4 +17,3 @@ resource "aws_route53_record" "ptfe_service" {
   ttl     = "300"
   records = ["${lookup(aws_vpc_endpoint.ptfe_service.dns_entry[0], "dns_name")}"]
 }
-
