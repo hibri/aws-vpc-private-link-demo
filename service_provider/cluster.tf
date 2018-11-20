@@ -4,7 +4,7 @@ module "fargate" {
 
   name_prefix          = "${var.service}"
   vpc_id               = "${data.aws_vpc.main.id}"
-  private_subnet_ids   = "${data.aws_subnet_ids.main.ids}"
+  private_subnet_ids   = ["${aws_subnet.service_provider.*.id}"]
   cluster_id           = "${aws_ecs_cluster.cluster.id}"
   task_container_image = "hibri/rhubarb-frontend:latest"
 
@@ -25,20 +25,4 @@ module "fargate" {
   }
 
   lb_arn = "${module.fargate_alb.arn}"
-}
-
-module "fargate_alb" {
-  source  = "telia-oss/loadbalancer/aws"
-  version = "0.2.0"
-
-  name_prefix = "${var.service}-service"
-  type        = "application"
-  internal    = "true"
-  vpc_id      = "${data.aws_vpc.main.id}"
-  subnet_ids  = ["${data.aws_subnet_ids.main.ids}"]
-
-  tags {
-    environment = "test"
-    terraform   = "true"
-  }
 }
