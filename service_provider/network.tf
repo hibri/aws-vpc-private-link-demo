@@ -1,5 +1,5 @@
 resource "aws_vpc" "service_provider" {
-  cidr_block           = "172.16.0.0/16"
+  cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
   enable_dns_hostnames = true
 
@@ -9,10 +9,10 @@ resource "aws_vpc" "service_provider" {
 }
 
 resource "aws_subnet" "service_provider" {
-  count                   = "${length(data.aws_availability_zones.available.names)}"
+  count                   = "${local.availability_zone_count}"
   vpc_id                  = "${data.aws_vpc.main.id}"
   cidr_block              = "${cidrsubnet(data.aws_vpc.main.cidr_block, 8, count.index)}"
-  availability_zone       = "${element(data.aws_availability_zones.available.names, count.index)}"
+  availability_zone       = "${element(local.availability_zones, count.index)}"
   map_public_ip_on_launch = false
 
   tags {
@@ -21,9 +21,9 @@ resource "aws_subnet" "service_provider" {
 }
 
 resource "aws_subnet" "service_provider_public" {
-  count                   = "${length(data.aws_availability_zones.available.names)}"
+  count                   = "${local.availability_zone_count}"
   cidr_block              = "${cidrsubnet(data.aws_vpc.main.cidr_block, 8, length(data.aws_availability_zones.available.names) + count.index)}"
-  availability_zone       = "${data.aws_availability_zones.available.names[count.index]}"
+  availability_zone       = "${local.availability_zones[count.index]}"
   vpc_id                  = "${data.aws_vpc.main.id}"
   map_public_ip_on_launch = true
 
@@ -45,19 +45,19 @@ resource "aws_route" "internet_access" {
 }
 
 resource "aws_eip" "gw" {
-  count      = "${length(data.aws_availability_zones.available.names)}"
+  count      = "${local.availability_zone_count}"
   vpc        = true
   depends_on = ["aws_internet_gateway.gw"]
 }
 
 resource "aws_nat_gateway" "gw" {
-  count         = "${length(data.aws_availability_zones.available.names)}"
+  count         = "${local.availability_zone_count}"
   subnet_id     = "${element(aws_subnet.service_provider_public.*.id, count.index)}"
   allocation_id = "${element(aws_eip.gw.*.id, count.index)}"
 }
 
 resource "aws_route_table" "private" {
-  count  = "${length(data.aws_availability_zones.available.names)}"
+  count  = "${local.availability_zone_count}"
   vpc_id = "${data.aws_vpc.main.id}"
 
   route {
@@ -67,7 +67,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  count          = "${length(data.aws_availability_zones.available.names)}"
+  count          = "${local.availability_zone_count}"
   subnet_id      = "${element(aws_subnet.service_provider.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
 }

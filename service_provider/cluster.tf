@@ -9,7 +9,7 @@ module "fargate" {
   task_container_image = "hibri/rhubarb-frontend:latest"
 
   // public ip is needed for default vpc, default is false
-  task_container_assign_public_ip = "true"
+  task_container_assign_public_ip = "false"
 
   // port, default protocol is HTTP
   task_container_port = "8080"
