@@ -4,7 +4,7 @@ provider "aws" {
 
 module "service_provider" {
   source   = "./service_provider"
-  vpc_cidr = "172.16.0.0/16"
+  vpc_cidr = "10.0.0.0/16"
 }
 
 module "consumer" {
